@@ -1,4 +1,4 @@
-# Reward Learning for Efficient Reinforcement Learning in Extractive Document Summarisation
+# RELIS: Reward Learning for Efficient Reinforcement Learning in Extractive Document Summarisation
 
 This project includes the source code accompanying the following paper:
 
@@ -13,7 +13,7 @@ This project includes the source code accompanying the following paper:
 }
 ```
 
-> **Abstract:** Document summarisation can be formulated as a sequential decision-making problem, which can be solved by Reinforcement Learning (RL) algo- rithms. The predominant RL paradigm for summarisation learns a cross-input policy, which requires considerable time, data and parameter tuning due to the huge search spaces and the delayed rewards. Learning input-specific RL policies is a more efficient alternative but so far depends on handcrafted rewards, which are difficult to design and yield poor performance. We propose RELIS, a novel RL paradigm that learns a reward function with Learning-to-Rank (L2R) algorithms at training time and uses this reward function to train an input-specific RL policy at test time. We prove that RELIS guarantees to generate near-optimal summaries with appropriate L2R and RL algorithms. Empirically, we evaluate our approach on extrac- tive multi-document summarisation. We show that RELIS reduces the training time by two orders of magnitude compared to the state-of-the-art models while performing on par with them.
+> **Abstract:** Document summarisation can be formulated as a sequential decision-making problem, which can be solved by Reinforcement Learning (RL) algo- rithms. The predominant RL paradigm for summarisation learns a cross-input policy, which requires considerable time, data and parameter tuning due to the huge search spaces and the delayed rewards. Learning input-specific RL policies is a more efficient alternative but so far depends on handcrafted rewards, which are difficult to design and yield poor performance. We propose RELIS, a novel RL paradigm that learns a reward function with Learning-to-Rank (L2R) algorithms at training time and uses this reward function to train an input-specific RL policy at test time. We prove that RELIS guarantees to generate near-optimal summaries with appropriate L2R and RL algorithms. Empirically, we evaluate our approach on extractive multi-document summarisation. We show that RELIS reduces the training time by two orders of magnitude compared to the state-of-the-art models while performing on par with them.
 
 Contact person: Yang Gao, yang.gao@rhul.ac.uk
 
@@ -26,12 +26,13 @@ Disclaimer:
 
 
 # System Overview
-APRIL is an interactive document summarisation framework. Instead of learning from reference summaries, APRIL interacts with the users/oracles to obtain preferences, learns a ranking over all summaries from the preferences, and generates (near-)optimal summaries with respect to the learnt ranking.
+RELIS is a Reinforcement Learning (RL) based multi-document extractive summarisation method. RELIS is a few hundred times faster to train than existing summarisation system because RELIS does not learn the complex summarisation policy but, instead, learns a reward function. For each input documents cluster at test time, it uses the learnt reward to train a RL-based summariser specifically for the input. Both reward learning and input-specific RL training is very efficient.  
 
-APRIL has three stages:
-* Sample summaries (stage0): randomly generate some summaries and compute their rouge scores. The ROUGE scores are used to simulate users' preferences
-* Active preference learning (stage1): actively query the oracle for multiple rounds, collect preferences and learn a ranking over summaries from the preferences.
-* Reinforcement learning (stage2): read the ranking learnt in stage1 and generate the highest-ranked summary
+RELIS has four stages:
+* Sample summaries: randomly generate some summaries and compute their ROUGE scores. The ROUGE scores are used as the ``ground-truth'' rewards. 
+* Feature generation: generate features for the reward learner, which is a feature-rich model that approximates the ground-truth rewards.
+* Reward learning: train the reward model to approximate the ground-truth rewards
+* RL-based summarisation: use the learnt reward to train the input-specific RL, so as to generate summaries for the input documents cluster
 
 
 ## Prerequisties
@@ -56,28 +57,22 @@ and put them to summariser/jars
 * Download the DUC01/02/04 data from [the DUC website](https://duc.nist.gov/data.html) and extract the data to folder 'data/'.
 * Run summariser/data_processer/make_data.py. Each run preprocesses one dataset. You can specify the dataset you want to process by setting the variable 'corpus_name' in the main function to appropriate values (e.g., 'DUC2001', 'DUC2002' or 'DUC2004'). The preprocessed data will be put in data/processed_data.
 
-## Stage0: Generate Sample Summaries
-* Run 'stage0_sample_summaries.py' will generate the samples
+## Stage 0: Generate Sample Summaries
+* Run 'stage0_sample_summaries.py' will generate sample summaries, by randomly selecting sentences from the input documents.
 * Setting 'dataset' in the main function to the dataset you want to generate summaries for
 * Setting 'summary_num' in the main function to the number of samples you want to generate for a dataset. Its default value is 10001.
 * The generated summaries will be put in data/sampled_summaries
+* For your convenience, you can download the generated samples from [here](https://drive.google.com/file/d/193isvjBZ4gukYp6AazzTWb6iAM4qd-_0/view?usp=sharing). 
 
 
-## Stage1: Active Preference Learning
-* Run 'stage1_active_pref_learning.py'
-* Setting 'dataset' to the dataset you want to run the experiment (DUC2001, DUC2002, DUC2004)
-* You can select the following active learning algorithms, by setting 'querier_type' to appropriate values:
-    * random sampling + BT (set querier_type to 'random'): randomly select two summaries to query the oracle in each interaction round; use the linear BT model to obtain the ranking
-    * gibbs distribution + BT (set querier_type to 'gibbs'): select a relative good and a relatively bad summary to query the user in each round; ranking is obtained using the same linear BT method.
-    * uncertainty sampling + BT (set querier_type to 'unc'): estimate the uncertainty level of each summary in the sampled summary pool, select the most uncertain pair to query and use BT to obtain the ranking.
-* To write the learnt ranker for use in Stage2, you can turn on the writing functionality by giving 'write_learnt_reward' True. The learnt ranker will be written to directory 'learnt_ranker'.
+## Stage 1: Feature Generation 
+* Change directory to 'summariser/reward_feature'. Each python file under that directory has a main function and generates one type of feature.
+* Run corresponding files to generate features. The generated features will be put to directory 'data/summary_features'
+* For your convenience, you can download some generated features for the generated sample summaries from [here](https://drive.google.com/file/d/13_8RXwZv3b0d16DfetObEQWuFdisX4lk/view?usp=sharing).
 
-## Stage2: Reinforcement Learning
-* Since TD performs much better than LSTD, in the current implementation only TD is included. 
-* choose reward type: 
-    * hueristic (baseline, no interaction)
-    * rouge (upper bound, because reference summaries are not available during interaction)
-    * learnt (using the ranker learned in stage1 to give rewards). If you go for this option, you also need to sepcify which learnt ranker you want to use by setting 'learnt_rank_setting' to appropriate values. Example settings can be found in the source code.
+## Stage 3 and 4: Reward Learning and RL-based Summarisation Generation 
+* run 'entry_inTopic.py' or 'entry_crossTopic.py'. In 'entry_inTopic.py', the training and test data come from the same dataset (DUC'01/02/04). In 'entry_crossTopic.py', train/test data are split in the 'leave-one-out' manner: the training data is from two datasets and the test is from the other. 
+* For the input arguments, please refer to the example given in the main function in those files. 
 
 ## License
 Apache License Version 2.0
