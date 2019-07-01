@@ -7,13 +7,13 @@ This project includes the source code accompanying the following paper:
   author    = {Yang Gao and Christian M. Meyer and Mohsen Mesgar and Iryna Gurevych},
   title     = {Reward Learning for Efficient Reinforcement Learning in Extractive Document Summarisation},
   booktitle = {Proceedings of the 28th International Joint Conference on Artificial Intelligence {(IJCAI)}},
-  month     = August,
+  month     = {August},
   year      = {2019},
   address   = {Macao, China}
 }
 ```
 
-> **Abstract:** Document summarisation can be formulated as a sequential decision-making problem, which can be solved by Reinforcement Learning (RL) algo- rithms. The predominant RL paradigm for summarisation learns a cross-input policy, which requires considerable time, data and parameter tuning due to the huge search spaces and the delayed rewards. Learning input-specific RL policies is a more efficient alternative but so far depends on handcrafted rewards, which are difficult to design and yield poor performance. We propose RELIS, a novel RL paradigm that learns a reward function with Learning-to-Rank (L2R) algorithms at training time and uses this reward function to train an input-specific RL policy at test time. We prove that RELIS guarantees to generate near-optimal summaries with appropriate L2R and RL algorithms. Empirically, we evaluate our approach on extractive multi-document summarisation. We show that RELIS reduces the training time by two orders of magnitude compared to the state-of-the-art models while performing on par with them.
+> **Abstract:** Document summarisation can be formulated as a sequential decision-making problem, which can be solved by Reinforcement Learning (RL) algorithms. The predominant RL paradigm for summarisation learns a cross-input policy, which requires considerable time, data and parameter tuning due to the huge search spaces and the delayed rewards. Learning input-specific RL policies is a more efficient alternative but so far depends on handcrafted rewards, which are difficult to design and yield poor performance. We propose RELIS, a novel RL paradigm that learns a reward function with Learning-to-Rank (L2R) algorithms at training time and uses this reward function to train an input-specific RL policy at test time. We prove that RELIS guarantees to generate near-optimal summaries with appropriate L2R and RL algorithms. Empirically, we evaluate our approach on extractive multi-document summarisation. We show that RELIS reduces the training time by two orders of magnitude compared to the state-of-the-art models while performing on par with them.
 
 Contact person: Yang Gao, yang.gao@rhul.ac.uk
 
