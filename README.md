@@ -75,6 +75,6 @@ and put them to summariser/jars
 * For the input arguments, please refer to the example given in the main function in those files. 
 
 ## License
-Apache License Version 2.0
+MIT License
 
 
